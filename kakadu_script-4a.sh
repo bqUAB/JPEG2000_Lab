@@ -32,9 +32,7 @@ echo 'Quality,PSNR,Size,PSNR,Size,Relation,'\
 # ----------------------------------------------
 # Turn raw images to jpeg of different qualities
 
-# Calculations
-
-# number of resulting images
+# Calculate the number of resulting images
 num_img=$(echo "scale=2; ($range_max-$range_min)/$step;"|bc);
 
 # Swipe through the experimental range
