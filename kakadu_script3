@@ -47,69 +47,61 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# Define the parameters
+step="0.2"
+range_min=0
+range_max=7
+
+# Calculate de number of samples
+samples=$(echo "scale=2; ($range_max-$range_min)/$step;"|bc);
+
 echo 'Rate,PSNR' > results.csv
 
-echo 'S-9' >> results.csv
-for i in `seq 1 40`;
+echo 'PLTL' >> results.csv
+for i in `seq 1 $samples`;
 do
 	# Compression
-	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_S-9_$i.jp2 -record ./logs/comp_S-9_$i.txt -rate $rate Creversible=no
+	rate=$(echo "scale=2; $i*$step+$range_min;"|bc);
+	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_PLTL-$i.jp2 -rate $rate Creversible=yes
 	
 	# Decompression
-	kdu_expand -i ./images/img_S-9_$i.jp2 -o ./images/img_S-9_$i.pgm -record ./logs/decomp_S-9_$i.txt
+	kdu_expand -i ./images/img_PLTL-$i.jp2 -o ./images/img_PLTL-$i.pgm
 	
 	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_S-9_$i.pgm -m 7 -f 1)
+	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_PLTL-$i.pgm -m 7 -f 1)
 	
 	# Saving the values in a spreadsheet
 	echo $rate','$psnr >> results.csv
 	
 	# Delete the images (cleaning)
-	rm ./images/img_S-9_$i.jp2
-	rm ./images/img_S-9_$i.pgm
+	rm ./images/img_PLTL-$i.jp2
+	rm ./images/img_PLTL-$i.pgm
 done
 
-echo 'P6-9' >> results.csv
-for i in `seq 1 40`;
+echo 'Lossy' >> results.csv
+for i in `seq 1 $samples`;
 do
 	# Compression
-	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_P6-9_$i.jp2 -record ./logs/comp_P6-9_$i.txt Clayers=6 -rate $rate Creversible=no
+	rate=$(echo "scale=2; $i*$step+$range_min;"|bc);
+	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_lossy-$i.jp2 -rate $rate Creversible=no
 	
 	# Decompression
-	kdu_expand -i ./images/img_P6-9_$i.jp2 -o ./images/img_P6-9_$i.pgm -record ./logs/decomp_P6-9_$i.txt	
+	kdu_expand -i ./images/img_lossy-$i.jp2 -o ./images/img_lossy-$i.pgm
 	
 	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_P6-9_$i.pgm -m 7 -f 1)
+	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_lossy-$i.pgm -m 7 -f 1)
 	
 	# Saving the values in a spreadsheet
 	echo $rate','$psnr >> results.csv
 	
 	# Delete the images (cleaning)
-	rm ./images/img_P6-9_$i.jp2
-	rm ./images/img_P6-9_$i.pgm
+	rm ./images/img_lossy-$i.jp2
+	rm ./images/img_lossy-$i.pgm
 done
 
-echo 'P7-3' >> results.csv
-for i in `seq 1 40`;
-do
-	# Compression
-	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_P7-3_$i.jp2 -record ./logs/comp_P7-3_$i.txt Clayers=7 -rate $rate Creversible=yes
-	
-	# Decompression
-	kdu_expand -i ./images/img_P7-3_$i.jp2 -o ./images/img_P7-3_$i.pgm -record ./logs/decomp_P7-3_$i.txt	
-	
-	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_P7-3_$i.pgm -m 7 -f 1)
-	
-	# Saving the rate and the corresponding PSNR in a spreadsheet
-	echo $rate','$psnr >> results.csv
-	
-	# Delete the images (cleaning)
-	rm ./images/img_P7-3_$i.jp2
-	rm ./images/img_P7-3_$i.pgm
-done
+#for i in `seq $range_min $samples`;
+#do
+	#echo "scale=2; $i*$step+$range_min;"|bc
+#done
 
 echo "Done! Script complete"

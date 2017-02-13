@@ -12,7 +12,7 @@
 # 2. copy kakadu_comp1 (this file) into the bin directory
 #
 # 3. Change the permissions of the binary file to allow execution.
-#	$ chmod 755 ~/bin/kakadu_script
+#	$ chmod 755 ~/bin/kakadu_comp1
 #
 # 3. Logout from the system
 #	$ logout
@@ -21,8 +21,6 @@
 #	project				(main directory)
 #	|	n5_GRAY.pgm		(main image to compress)
 #	|---results			(subdirectory where the results will be saved)
-#		|---images		(subdirectory for resulting images)
-#		|---logs		(subdirectory for resulting logs)
 #
 # 5. Navigate to the results directory
 #	$ cd /path_to_directory/project/results	(depends on the user)
@@ -47,69 +45,24 @@
 #	You should have received a copy of the GNU General Public License
 #	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-echo 'Rate,PSNR' > results.csv
 
-echo 'S-9' >> results.csv
 for i in `seq 1 40`;
 do
-	# Compression
 	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_S-9_$i.jp2 -record ./logs/comp_S-9_$i.txt -rate $rate Creversible=no
-	
-	# Decompression
-	kdu_expand -i ./images/img_S-9_$i.jp2 -o ./images/img_S-9_$i.pgm -record ./logs/decomp_S-9_$i.txt
-	
-	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_S-9_$i.pgm -m 7 -f 1)
-	
-	# Saving the values in a spreadsheet
-	echo $rate','$psnr >> results.csv
-	
-	# Delete the images (cleaning)
-	rm ./images/img_S-9_$i.jp2
-	rm ./images/img_S-9_$i.pgm
+	echo  'kdu_compress -i ../n5_GRAY.pgm -o test_a'$i'.jp2 -record t_a'$i'.txt Clayers=6 -rate '$rate' Creversible=no'
+	kdu_compress -i ../n5_GRAY.pgm -o test_a$i.jp2 -record t_a$i.txt Clayers=6 -rate $rate Creversible=no
 done
 
-echo 'P6-9' >> results.csv
 for i in `seq 1 40`;
 do
-	# Compression
 	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_P6-9_$i.jp2 -record ./logs/comp_P6-9_$i.txt Clayers=6 -rate $rate Creversible=no
-	
-	# Decompression
-	kdu_expand -i ./images/img_P6-9_$i.jp2 -o ./images/img_P6-9_$i.pgm -record ./logs/decomp_P6-9_$i.txt	
-	
-	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_P6-9_$i.pgm -m 7 -f 1)
-	
-	# Saving the values in a spreadsheet
-	echo $rate','$psnr >> results.csv
-	
-	# Delete the images (cleaning)
-	rm ./images/img_P6-9_$i.jp2
-	rm ./images/img_P6-9_$i.pgm
+	echo  'kdu_compress -i ../n5_GRAY.pgm -o test_b'$i'.jp2 -record t_b'$i'.txt Clayers=7 -rate '$rate' Creversible=yes'
+	kdu_compress -i ../n5_GRAY.pgm -o test_b$i.jp2 -record t_b$i.txt Clayers=7 -rate $rate Creversible=yes
 done
 
-echo 'P7-3' >> results.csv
 for i in `seq 1 40`;
 do
-	# Compression
 	rate=$(echo "scale=2; $i/20;"|bc);
-	kdu_compress -i ../n5_GRAY.pgm -o ./images/img_P7-3_$i.jp2 -record ./logs/comp_P7-3_$i.txt Clayers=7 -rate $rate Creversible=yes
-	
-	# Decompression
-	kdu_expand -i ./images/img_P7-3_$i.jp2 -o ./images/img_P7-3_$i.pgm -record ./logs/decomp_P7-3_$i.txt	
-	
-	# Comparison
-	psnr=$(Gcomp -i1 ../n5_GRAY.pgm -i2 ./images/img_P7-3_$i.pgm -m 7 -f 1)
-	
-	# Saving the rate and the corresponding PSNR in a spreadsheet
-	echo $rate','$psnr >> results.csv
-	
-	# Delete the images (cleaning)
-	rm ./images/img_P7-3_$i.jp2
-	rm ./images/img_P7-3_$i.pgm
+	echo  'kdu_compress -i ../n5_GRAY.pgm -o test_c'$i'.jp2 -record t_c'$i'.txt -rate '$rate
+	kdu_compress -i ../n5_GRAY.pgm -o test_c$i.jp2 -record t_c$i.txt -rate $rate
 done
-
-echo "Done! Script complete"

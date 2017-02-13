@@ -1,0 +1,111 @@
+#!/bin/bash
+# ---------- Kakadu Script ----------
+# This script is used to repeat the kakadu compress command with
+# different rates. At the moment the script covers the rates between
+# 0.05 to 2. It also uses three different parameters resulting in
+# 120 images and 120 text files.
+#
+# Instructions:
+# 1. Create a new directory for binary executables (this is for ubuntu).
+#   $ mkdir ~/bin
+#
+# 2. copy this file into the bin directory
+#
+# 3. Change the permissions of the binary file to allow execution.
+#   $ chmod 755 ~/bin/kakadu_script-1
+#
+# 3. Logout from the system
+#   $ logout
+#
+# 4. Create the following directory tree
+#   lab1            (main directory)
+#	|   n5_RGB.ppm  (main image to compress)
+#   |---img         (subdirectory for resulting images)
+#   |---logs        (subdirectory for resulting logs)
+#
+# 5. Navigate to the lab1 directory
+#	$ cd /path_to_directory/lab1	(depends on the user)
+#
+# 6. Execute the binary and enjoy
+#	$ kakadu_script-1
+#
+# TO DO: ask the user the value in which to perform the steps.
+#
+#	---------- License ---------- 
+#	This program is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Define the parameters
+step="0.05"
+range_min=0
+range_max=2
+
+# Calculate de number of samples
+samples=$(echo "scale=2; ($range_max-$range_min)/$step;"|bc);
+
+echo ' ,PSNR' > results-1b.csv
+echo 'rate,S-(97),P6-(97),P7-(53)' >> results-1b.csv
+
+for i in `seq 1 $samples`;
+do
+  rate=$(echo "scale=2; $i*$step+$range_min;"|bc);
+  
+  # ----- S-(9,7) ------- #
+  # Compression
+  kdu_compress -i ./n5_GRAY.pgm -o ./img/img_s-$i.jp2 -record ./logs/comp_s-$i.txt -rate $rate Creversible=no
+
+  # Decompression
+  kdu_expand -i ./img/img_s-$i.jp2 -o ./img/img_s-$i.pgm -record ./logs/decomp_s-$i.txt -rate $rate
+
+  # Comparison
+  psnr_s=$(Gcomp -i1 ./n5_GRAY.pgm -i2 ./img/img_s-$i.pgm -m 7 -f 1)
+  # ------------------ #
+  
+  # ----- P6-(9,7) ------ #
+  # Compression
+  kdu_compress -i ./n5_GRAY.pgm -o ./img/img_p6-$i.jp2 -record ./logs/comp_p6-$i.txt Clayers=6 \
+    -rate 0.0625,0.125,0.25,0.5,1,2 Creversible=no
+
+  # Decompression
+  kdu_expand -i ./img/img_p6-$i.jp2 -o ./img/img_p6-$i.pgm -record ./logs/decomp_p6-$i.txt -rate $rate
+
+  # Comparison
+  psnr_p6=$(Gcomp -i1 ./n5_GRAY.pgm -i2 ./img/img_p6-$i.pgm -m 7 -f 1)
+  # ------------------ #
+  
+  # ----- P7-(5,3) ------ #
+  kdu_compress -i ./n5_GRAY.pgm -o ./img/img_p7-$i.jp2 -record ./logs/comp_p7-$i.txt Clayers=7 \
+    -rate -,0.0625,0.125,0.25,0.5,1,2 Creversible=yes
+
+  # Decompression
+  kdu_expand -i ./img/img_p7-$i.jp2 -o ./img/img_p7-$i.pgm -record ./logs/decomp_p7-$i.txt -rate $rate
+
+  # Comparison
+  psnr_p7=$(Gcomp -i1 ./n5_GRAY.pgm -i2 ./img/img_p7-$i.pgm -m 7 -f 1)
+  # ------------------ #
+
+  # Saving the values in a spreadsheet
+  echo $rate','$psnr_s','$psnr_p6','$psnr_p7 >> results-1b.csv
+
+  # Delete the images (cleaning)
+  rm ./img/img_s-$i.jp2
+  rm ./img/img_s-$i.pgm
+  rm ./img/img_p6-$i.jp2
+  rm ./img/img_p6-$i.pgm
+  rm ./img/img_p7-$i.jp2
+  rm ./img/img_p7-$i.pgm
+done
+
+echo "*************************"
+echo "* Done! Script complete *"
+echo "*************************"

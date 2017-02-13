@@ -1,0 +1,124 @@
+#!/bin/bash
+# This is our first script.
+
+#echo 'Hello Word!'
+#echo 'is this a second line?'
+
+#for i in $( ls); do 	
+	#echo item: $i
+#done
+
+#num1=1.01
+#num2=0.29
+
+#calc=$(echo "$num1*$num2"|bc);
+#calc=$(echo "3*0.5"|bc);
+#echo $calc
+
+#rate=$(echo "scale=2; 1/20;"|bc);
+#echo $rate
+
+# ---------
+# While loop example
+contador=4
+limite=10
+#while [ $contador -ge 5 -o $limite -le 1 ]; do
+    #echo valor actual $contador
+    #let contador=contador+1
+    #let limite=limite-1
+#done
+
+#contador=0.1
+#while [ $contador -le 1 ]; do
+    #echo valor actual $contador
+    #contador=$(echo "scale=2; $contador+0.1;"|bc);
+#done
+
+#for i in `seq 1 10`; do
+    #echo $i
+    #contador=11
+    #while [ $contador -le 20 ]; do
+        #echo valor actual $contador
+        #let contador=contador+1
+    #done
+#done
+
+# ---------------------------------------
+counter=1
+rate_counter=$rate
+psnr_counter=0
+psnr_value=30
+
+while [ $psnr_counter -ge $psnr_value ]; do
+  
+  echo "We are inside the while"
+  sleep 5
+  let psnr_counter=psnr_counter+5
+  
+  ## Grayscale file names with path and extension
+  #out_jp2="./img/$gray_img_name-$quality-$counter.jp2"
+  
+  ## Grayscale decompressed file names with path and extension
+  #dec_jp2="./img/$gray_img_name-jp2-$quality-$counter.pgm"
+  
+  ## RGB (color) file names with path and extension
+  ##out_rgb_jp2="./img/$rgb_img_name-$quality-$counter.jp2"
+  
+  ## RGB decompressed file names with path and extension
+  ##dec_rgb_jp2="./img/$rgb_img_name-jp2-$quality-$counter.ppm"
+  
+  ### Compress the decoded JPEG files with JPEG2000
+  #kdu_compress -i $dec_jpg -o $out_jp2 -rate $rate_counter
+  ##kdu_compress -i $dec_rgb_jpg -o $out_rgb_jp2
+  
+  ## Decompression
+  #kdu_expand -i $out_jp2 -o $dec_jp2
+  ##kdu_expand -i $out_rgb_jp2 -o $dec_rgb_jp2
+  
+  ## Print information
+  #echo "****************************"
+  #echo "* JPEG2000 processing done *"
+  #echo "****************************"
+  #echo "$out_jp2 created and decompressed."
+  ##echo "$out_rgb_jp2 created and decompressed."
+  #sleep 5
+  
+  ## -------------------------------------
+  ## Comparison of JPEG2000 and Raw images
+  ## PSNR calculation for the decoded the JPEG2000
+  #psnr_gray_jp2=$(obtain_psnr.sh $gray_img_full $dec_jp2)
+  ##psnr_rgb_jp2=$(obtain_psnr.sh $rgb_img_full $dec_rgb_jp2)
+  
+  ## JPEG2000 images size
+  #gray_jp2_img_size=$(stat -c%s "$out_jp2")
+  ##rgb_jp2_img_size=$(stat -c%s "$out_rgb_jp2")
+  
+  ## -------------------------------
+  ## Grayscale or RGB PSNR selection
+  #psnr_counter=$psnr_gray_jp2
+  ##psnr_counter=$psnr_rgb_jp2
+  
+  ## ----------------------------
+  ## Delete the images (cleaning)
+  #rm $out_jp2
+  ##rm $out_rgb_jp2
+  
+  #rm $dec_jp2  
+  ##rm $dec_rgb_jp2
+
+  ## Print information
+  #echo "*************************************************"
+  #echo "* Clean and delete JPEG 2000 related files done *"
+  #echo "*************************************************"  
+  #sleep 5
+  
+  ## -----------------
+  ## Increasing values
+  
+  ## Add +1 to counter
+  #let counter=counter+1;
+  
+  ## Add rate
+  #rate_counter=$(echo "scale=2; $rate_counter+$rate;"|bc);
+  
+done
